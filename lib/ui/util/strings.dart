@@ -1,0 +1,1 @@
+const listScreenTitle = 'Movies List';

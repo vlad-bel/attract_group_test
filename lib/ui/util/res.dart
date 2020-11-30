@@ -1,0 +1,1 @@
+final filmPlaceholderPath = 'res/images/filmPlaceholder.png';
