@@ -71,6 +71,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
               style: Theme.of(context).textTheme.bodyText2,
             ),
             SizedBox(height: 8),
+
             Container(
               width: double.infinity,
               height: 1,
