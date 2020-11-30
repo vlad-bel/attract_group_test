@@ -19,8 +19,8 @@ class ListScreenState extends State<ListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return _buildIosUi();
-    // return Platform.isIOS ? _buildIosUi() : _buildAndroidUi();
+    // return _buildIosUi();
+    return Platform.isIOS ? _buildIosUi() : _buildAndroidUi();
   }
 
   Widget _buildAndroidUi() {

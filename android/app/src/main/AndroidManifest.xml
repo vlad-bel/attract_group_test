@@ -4,7 +4,8 @@
    <application
         android:label="attract_group_test"
         android:icon="@mipmap/ic_launcher"
-       android:usesCleartextTraffic="true">
+       android:usesCleartextTraffic="true"
+       android:requestLegacyExternalStorage="true">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
