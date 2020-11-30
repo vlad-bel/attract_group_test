@@ -1,9 +1,15 @@
+import 'dart:io';
+
 import 'package:attract_group_test/ui/screen/details_screen/details_screen.dart';
 import 'package:attract_group_test/ui/util/mocks.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class DetailsScreenPages extends StatefulWidget {
+  final int filmIndex;
+
+  DetailsScreenPages(this.filmIndex);
+
   @override
   State<StatefulWidget> createState() {
     return _DetailsScreenPagesState();
@@ -11,8 +17,6 @@ class DetailsScreenPages extends StatefulWidget {
 }
 
 class _DetailsScreenPagesState extends State<DetailsScreenPages> {
-  var isAndroid = false;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,6 +26,9 @@ class _DetailsScreenPagesState extends State<DetailsScreenPages> {
             itemBuilder: (context, index) {
               return DetailsScreen(mockFilms[index]);
             },
+            controller: PageController(
+              initialPage: widget.filmIndex,
+            ),
             itemCount: mockFilms.length,
           ),
           _buildAppbar(),
@@ -37,13 +44,13 @@ class _DetailsScreenPagesState extends State<DetailsScreenPages> {
         children: [
           IconButton(
             icon: Icon(
-              isAndroid ? Icons.arrow_back : Icons.arrow_back_ios,
+              Platform.isAndroid ? Icons.arrow_back : Icons.arrow_back_ios,
               color: Colors.white,
             ),
             onPressed: () {},
           ),
           Spacer(),
-          isAndroid
+          Platform.isAndroid
               ? PopupMenuButton(
                   icon: Icon(
                     Icons.more_vert,

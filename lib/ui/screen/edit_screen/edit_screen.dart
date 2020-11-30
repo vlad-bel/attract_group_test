@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:attract_group_test/data/model/film.dart';
-import 'package:attract_group_test/data/repository/films_repository.dart';
+import 'package:attract_group_test/data/repository/film_repository.dart';
 import 'package:attract_group_test/ui/screen/edit_screen/photo_picker/photo_picker.dart';
 import 'package:attract_group_test/ui/screen/edit_screen/textfield/pickers.dart';
 import 'package:attract_group_test/ui/screen/edit_screen/textfield/textfield.dart';

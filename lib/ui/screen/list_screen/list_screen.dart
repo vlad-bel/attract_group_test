@@ -1,36 +1,44 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:attract_group_test/data/interactor/film_interactor.dart';
+import 'package:attract_group_test/data/model/film.dart';
+import 'package:attract_group_test/data/repository/film_repository.dart';
+import 'package:attract_group_test/ui/screen/list_screen/bloc/list_screen_bloc.dart';
+import 'package:attract_group_test/ui/screen/list_screen/bloc/list_screen_state.dart';
 import 'package:attract_group_test/ui/screen/list_screen/film_card/film_card.dart';
 import 'package:attract_group_test/ui/util/strings.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart';
+import 'package:provider/provider.dart';
 
 class ListScreen extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return ListScreenState();
+    return _ListScreenState();
   }
 }
 
-class ListScreenState extends State<ListScreen> {
-  var filmList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-
+class _ListScreenState extends State<ListScreen> {
   @override
   Widget build(BuildContext context) {
-    // return _buildIosUi();
-    return Platform.isIOS ? _buildIosUi() : _buildAndroidUi();
+    return BlocConsumer<ListScreenBloc, ListScreenState>(
+      builder: (BuildContext context, state) {
+        return Platform.isIOS ? _buildIosUi() : _buildAndroidUi(state);
+      },
+      listener: (BuildContext context, state) {},
+    );
   }
 
-  Widget _buildAndroidUi() {
+  Widget _buildAndroidUi(ListScreenState state) {
     var isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: () async {
-          return setState(() {
-            filmList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-          });
+          ///TODO СДЕЛАТЬ ОБНОВЛЕНИЕ
+          return setState(() {});
         },
         child: CustomScrollView(
           slivers: [
@@ -40,7 +48,9 @@ class ListScreenState extends State<ListScreen> {
                 "Film list",
               ),
             ),
-            _buildFilmList(1.1),
+            if (state is ListScreenLoading) _buildLoadingState(),
+            if (state is ListScreenFail) _buildErrorState(),
+            if (state is ListScreenSucces) _buildSuccesState(state),
           ],
         ),
       ),
@@ -49,6 +59,40 @@ class ListScreenState extends State<ListScreen> {
         onPressed: () {},
       ),
     );
+  }
+
+  Widget _buildLoadingState() {
+    return SliverFillRemaining(
+      child: Center(
+        child: Platform.isAndroid
+            ? CircularProgressIndicator()
+            : CupertinoActivityIndicator(),
+      ),
+    );
+  }
+
+  Widget _buildErrorState() {
+    return SliverFillRemaining(
+      child: Center(
+        child: Column(
+          children: [
+            Icon(
+              Icons.error_outline,
+              color: Colors.red,
+            ),
+            Text("error! try refresh page"),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSuccesState(ListScreenSucces succes) {
+    if (Platform.isAndroid) {
+      return _buildFilmList(succes.filmList, 1.1);
+    }
+
+    return _buildFilmList(succes.filmList, 2);
   }
 
   Widget _buildIosUi() {
@@ -68,14 +112,13 @@ class ListScreenState extends State<ListScreen> {
           slivers: [
             CupertinoSliverRefreshControl(
               onRefresh: () async {
-                return setState(() {
-                  filmList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-                });
+                ///TODO СДЕЛАТЬ ОБНОВЛЕНИЕ
+                return setState(() {});
               },
               refreshIndicatorExtent: 100,
               refreshTriggerPullDistance: 100,
             ),
-            _buildFilmList(2),
+            // _buildFilmList(2),
           ],
         ),
       ),
@@ -102,7 +145,7 @@ class ListScreenState extends State<ListScreen> {
     );
   }
 
-  Widget _buildFilmList(double aspectRatio) {
+  Widget _buildFilmList(List<Film> filmList, double aspectRatio) {
     var isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
     return isPortrait == true
         ? SliverList(
@@ -113,9 +156,7 @@ class ListScreenState extends State<ListScreen> {
                   child: FilmCard(),
                   direction: DismissDirection.endToStart,
                   onDismissed: (direction) {
-                    setState(() {
-                      filmList.removeAt(index);
-                    });
+                    setState(() {});
                   },
                 );
               },
