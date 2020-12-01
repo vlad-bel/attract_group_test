@@ -1,64 +1,85 @@
-import 'dart:convert';
 import 'dart:io';
 
-import 'package:attract_group_test/ui/screen/list_screen/film_card/film_card.dart';
-import 'package:attract_group_test/ui/util/strings.dart';
+import 'package:attract_group_test/main.dart';
+import 'package:attract_group_test/ui/screen/list_screen/bloc/list_screen_bloc.dart';
+import 'package:attract_group_test/ui/screen/list_screen/bloc/list_screen_event.dart';
+import 'package:attract_group_test/ui/screen/list_screen/bloc/list_screen_state.dart';
+import 'package:attract_group_test/ui/screen/list_screen/widgets/appbar/appbar.dart';
+import 'package:attract_group_test/ui/screen/list_screen/widgets/film_list/film_list.dart';
+import 'package:attract_group_test/ui/screen/list_screen/widgets/new_film_button/new_film_button.dart';
+import 'package:attract_group_test/ui/screen/list_screen/widgets/refresher/refresher.dart';
+import 'package:attract_group_test/ui/screen/routes/film_details_route.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ListScreen extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return ListScreenState();
+    return _ListScreenState();
   }
 }
 
-class ListScreenState extends State<ListScreen> {
-  var filmList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+class _ListScreenState extends State<ListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // return _buildIosUi();
-    return Platform.isIOS ? _buildIosUi() : _buildAndroidUi();
-  }
-
-  Widget _buildAndroidUi() {
-    var isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
-    return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: () async {
-          return setState(() {
-            filmList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-          });
+    return BlocProvider(
+      create: (BuildContext context) {
+        return ListScreenBloc(
+          MyApp.filmInteractor,
+        );
+      },
+      child: BlocConsumer<ListScreenBloc, ListScreenState>(
+        builder: (BuildContext context, state) {
+          print("currentState $state");
+          return Platform.isIOS
+              ? _buildIosUi(state)
+              : _buildAndroidUi(state, context);
         },
-        child: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              ///TODO стиль текста в теме
-              title: Text(
-                "Film list",
-              ),
-            ),
-            _buildFilmList(1.1),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () {},
+        listener: (BuildContext context, state) async {
+          if(state is DetailsRouteState){
+            Navigator.of(context).push(filmDetailsRoute(state.filmId));
+          }
+
+          if(state is NewFilmRouteState){
+            Navigator.of(context).push(newFilmRoute());
+          }
+        },
       ),
     );
   }
 
-  Widget _buildIosUi() {
+  Widget _buildAndroidUi(ListScreenState state, BuildContext context) {
+    return Scaffold(
+      body: Refresher(
+        onRefresh: () async {
+          context.bloc<ListScreenBloc>().add(InitEvent());
+        },
+        child: CustomScrollView(
+          slivers: [
+            Appbar(),
+            if (state is LoadingState) _buildLoadingState(),
+            if (state is ErrorState) _buildErrorState(),
+            if (state is SuccesState) _buildSuccesState(state, context),
+            if (state is DetailsRouteState) _buildSuccesState(state, context),
+          ],
+        ),
+      ),
+      floatingActionButton: NewFilmButton(
+        onPressed: () {
+          context.bloc<ListScreenBloc>().add(NewFilmRouteEvent());
+        },
+      ),
+    );
+  }
+
+  Widget _buildIosUi(ListScreenState state) {
     return Scaffold(
       body: NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) {
           return [
-            CupertinoSliverNavigationBar(
-              largeTitle: Text("List screen"),
-            ),
+            AppBar(),
           ];
         },
         body: CustomScrollView(
@@ -66,85 +87,59 @@ class ListScreenState extends State<ListScreen> {
             parent: BouncingScrollPhysics(),
           ),
           slivers: [
-            CupertinoSliverRefreshControl(
-              onRefresh: () async {
-                return setState(() {
-                  filmList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-                });
+            Refresher(
+              onRefresh: () {
+                ///TODO сделать обновление
               },
-              refreshIndicatorExtent: 100,
-              refreshTriggerPullDistance: 100,
             ),
-            _buildFilmList(2),
+            if (state is LoadingState) _buildLoadingState(),
+            if (state is ErrorState) _buildErrorState(),
+            if (state is SuccesState) _buildSuccesState(state, context),
           ],
         ),
       ),
-      floatingActionButton: Container(
-        width: 128,
-        decoration: BoxDecoration(
-            color: Colors.grey.withAlpha(200),
-            borderRadius: BorderRadius.all(
-              Radius.circular(24),
-            )),
-        child: CupertinoButton(
-          ///TODO стиль текста в теме
-          child: Text(
-            'add',
-            style: TextStyle(
-              color: Colors.white,
-            ),
-          ),
-          onPressed: () {},
-          borderRadius: BorderRadius.all(Radius.circular(18)),
-        ),
+      floatingActionButton: NewFilmButton(
+        onPressed: () {},
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
-  Widget _buildFilmList(double aspectRatio) {
-    var isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
-    return isPortrait == true
-        ? SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                return Dismissible(
-                  key: UniqueKey(),
-                  child: FilmCard(),
-                  direction: DismissDirection.endToStart,
-                  onDismissed: (direction) {
-                    setState(() {
-                      filmList.removeAt(index);
-                    });
-                  },
-                );
-              },
-              childCount: filmList.length,
+  Widget _buildLoadingState() {
+    return SliverFillRemaining(
+      child: Center(
+        child: Platform.isAndroid
+            ? CircularProgressIndicator()
+            : CupertinoActivityIndicator(),
+      ),
+    );
+  }
+
+  Widget _buildErrorState() {
+    return SliverFillRemaining(
+      child: Center(
+        child: Column(
+          children: [
+            Icon(
+              Icons.error_outline,
+              color: Colors.red,
             ),
-          )
-        : SliverGrid(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                return Dismissible(
-                  key: UniqueKey(),
-                  child: FilmCard(),
-                  direction: index.isEven
-                      ? DismissDirection.endToStart
-                      : DismissDirection.startToEnd,
-                  onDismissed: (direction) {
-                    setState(() {
-                      filmList.removeAt(index);
-                    });
-                  },
-                  behavior: HitTestBehavior.deferToChild,
-                );
-              },
-              childCount: filmList.length,
-            ),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: aspectRatio,
-            ),
-          );
+            Text("error! try refresh page"),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSuccesState(SuccesState succes, BuildContext context) {
+    return FilmList(
+      filmList: succes.filmList,
+      onTap: (filmId) {
+        context.bloc<ListScreenBloc>().add(DetailsRouteEvent(filmId));
+      },
+      onDismissed: (index) {
+        context.bloc<ListScreenBloc>().add(RemoveFilmEvent(index));
+      },
+    );
   }
 }

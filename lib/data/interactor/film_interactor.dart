@@ -1,11 +1,11 @@
 import 'package:attract_group_test/data/model/film.dart';
-import 'package:attract_group_test/data/repository/films_repository.dart';
+import 'package:attract_group_test/data/repository/film_repository.dart';
 import 'package:flutter/cupertino.dart';
 
 class FilmInteractor {
-  final Repository repository;
+  final FilmRepository repository;
 
-  final cachedFilms = <Film>[];
+  var cachedFilms = <Film>[];
 
   FilmInteractor({
     @required this.repository,

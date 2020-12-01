@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:attract_group_test/data/model/film.dart';
 import 'package:attract_group_test/ui/util/mocks.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,7 +17,6 @@ class DetailsScreen extends StatefulWidget {
 }
 
 class _DetailsScreenState extends State<DetailsScreen> {
-  var isAndroid = false;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +27,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
 
   Widget _buildBody() {
     return CustomScrollView(
-      physics: isAndroid
+      physics: Platform.isAndroid
           ? ClampingScrollPhysics()
           : AlwaysScrollableScrollPhysics(
               parent: BouncingScrollPhysics(),
@@ -43,6 +44,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
       expandedHeight: 350.0,
       floating: false,
       pinned: true,
+      leading: Container(),
       flexibleSpace: FlexibleSpaceBar(
         ///TODO стиль текста в теме
         title: Text(widget.film.name),

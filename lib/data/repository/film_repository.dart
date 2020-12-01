@@ -5,12 +5,12 @@ import 'package:attract_group_test/data/repository/film_parser.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 
-class Repository {
+class FilmRepository {
   final Client client;
 
   final baseUrl = 'http://test.php-cd.attractgroup.com/test.json';
 
-  Repository({@required this.client});
+  FilmRepository({@required this.client});
 
   Future<List<Film>> getFilms() async {
     var response = await client.get(baseUrl);
