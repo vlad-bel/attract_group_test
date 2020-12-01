@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:attract_group_test/data/model/film.dart';
 import 'package:attract_group_test/ui/util/mocks.dart';
+import 'package:attract_group_test/ui/util/res.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -17,7 +18,6 @@ class DetailsScreen extends StatefulWidget {
 }
 
 class _DetailsScreenState extends State<DetailsScreen> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,11 +49,27 @@ class _DetailsScreenState extends State<DetailsScreen> {
         ///TODO стиль текста в теме
         title: Text(widget.film.name),
         collapseMode: CollapseMode.parallax,
-        background: Image.network(
-          widget.film.image,
-          fit: BoxFit.cover,
-        ),
+        background: _buildPhoto(),
       ),
+    );
+  }
+
+  Widget _buildPhoto() {
+    bool validURL = Uri.parse(widget.film.image).isAbsolute;
+    if (validURL) {
+      return FadeInImage.assetNetwork(
+        image: widget.film.image,
+        placeholder: filmPlaceholderPath,
+        fit: BoxFit.cover,
+      );
+    }
+
+    return FadeInImage(
+      image: FileImage(
+        File(widget.film.image),
+      ),
+      fit: BoxFit.cover,
+      placeholder: AssetImage(filmPlaceholderPath),
     );
   }
 
@@ -73,7 +89,6 @@ class _DetailsScreenState extends State<DetailsScreen> {
               style: Theme.of(context).textTheme.bodyText2,
             ),
             SizedBox(height: 8),
-
             Container(
               width: double.infinity,
               height: 1,

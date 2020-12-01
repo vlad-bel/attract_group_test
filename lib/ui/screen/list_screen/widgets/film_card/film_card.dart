@@ -38,20 +38,12 @@ class FilmCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ///build photo
-
             ClipRRect(
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(8.0),
                 topRight: Radius.circular(8.0),
               ),
-              child: FadeInImage.assetNetwork(
-                image: film.image,
-                placeholder: filmPlaceholderPath,
-                fit: BoxFit.fitWidth,
-                height: 200,
-                width: double.infinity,
-              ),
+              child: _buildPhoto(),
             ),
 
             ///build body
@@ -89,6 +81,29 @@ class FilmCard extends StatelessWidget {
     );
   }
 
+  Widget _buildPhoto() {
+    bool validURL = Uri.parse(film.image).isAbsolute;
+    if (validURL) {
+      return FadeInImage.assetNetwork(
+        image: film.image,
+        placeholder: filmPlaceholderPath,
+        fit: BoxFit.fitWidth,
+        height: 200,
+        width: double.infinity,
+      );
+    }
+
+    return FadeInImage(
+      image: FileImage(
+        File(film.image),
+      ),
+      fit: BoxFit.fitWidth,
+      height: 200,
+      width: double.infinity,
+      placeholder: AssetImage(filmPlaceholderPath),
+    );
+  }
+
   Widget _buildIosCard() {
     return Container(
       height: 200,
@@ -98,17 +113,7 @@ class FilmCard extends StatelessWidget {
             borderRadius: BorderRadius.all(
               Radius.circular(8),
             ),
-
-            ///build photo
-            child: Container(
-              height: 200,
-              width: double.infinity,
-              child: FadeInImage.assetNetwork(
-                placeholder: filmPlaceholderPath,
-                image: film.image,
-                fit: BoxFit.fitWidth,
-              ),
-            ),
+            child: _buildPhoto(),
           ),
 
           ///build body

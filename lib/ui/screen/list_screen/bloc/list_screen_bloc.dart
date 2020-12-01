@@ -24,7 +24,6 @@ class ListScreenBloc extends Bloc<ListScreenEvent, ListScreenState> {
     if (event is DetailsRouteEvent) {
       yield DetailsRouteState(
         event.filmId,
-        filmInteractor.cachedFilms,
       );
     }
 
@@ -36,6 +35,10 @@ class ListScreenBloc extends Bloc<ListScreenEvent, ListScreenState> {
       filmInteractor.cachedFilms.removeAt(event.index);
       yield RemoveFilmState(filmInteractor.cachedFilms);
     }
+
+    if(event is RefreshEvent){
+      yield refreshScreen();
+    }
   }
 
   Future<ListScreenState> loadFilmList() async {
@@ -45,5 +48,9 @@ class ListScreenBloc extends Bloc<ListScreenEvent, ListScreenState> {
     } catch (e) {
       return ErrorState(exception: e);
     }
+  }
+
+  ListScreenState refreshScreen(){
+    return SuccesState(filmInteractor.cachedFilms);
   }
 }

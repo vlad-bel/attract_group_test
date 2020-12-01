@@ -21,13 +21,12 @@ class RemoveFilmState extends SuccesState {
   RemoveFilmState(List<Film> filmList) : super(filmList);
 }
 
-class DetailsRouteState extends SuccesState {
+class DetailsRouteState extends ListScreenState {
   final int filmId;
 
   DetailsRouteState(
     this.filmId,
-    List<Film> filmList,
-  ) : super(filmList);
+  );
 }
 
 class NewFilmRouteState extends SuccesState {

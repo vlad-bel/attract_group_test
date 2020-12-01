@@ -15,6 +15,7 @@ class AdaptiveTextField extends StatelessWidget {
   final String label;
   final Function(DateTime date) onDatePick;
   final Function(String text) onSubmitted;
+  final Function(String text) onChange;
   final Mode mode;
   final TextInputAction inputAction;
 
@@ -25,6 +26,7 @@ class AdaptiveTextField extends StatelessWidget {
     this.label = 'test',
     this.onDatePick,
     this.onSubmitted,
+    this.onChange,
     this.mode = Mode.text,
     this.inputAction = TextInputAction.next,
   });
@@ -46,6 +48,7 @@ class AdaptiveTextField extends StatelessWidget {
     return TextField(
       controller: controller,
       focusNode: focusNode,
+      onChanged: onChange,
       decoration: InputDecoration(
         border: OutlineInputBorder(),
         labelText: label,
@@ -81,6 +84,7 @@ class AdaptiveTextField extends StatelessWidget {
       focusNode: focusNode,
       placeholder: label,
       onSubmitted: onSubmitted,
+      onChanged: onChange,
     );
   }
 

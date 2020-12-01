@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:attract_group_test/ui/util/res.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -7,7 +8,12 @@ import 'package:image_picker/image_picker.dart';
 class PhotoPicker extends StatefulWidget {
   final Function(File file) onImagePick;
 
-  PhotoPicker({@required this.onImagePick});
+  final String filmImage;
+
+  PhotoPicker({
+    @required this.onImagePick,
+    this.filmImage,
+  });
 
   @override
   State<StatefulWidget> createState() {
@@ -19,6 +25,11 @@ class PhotoPickerState extends State<PhotoPicker> {
   File imageFile;
 
   final picker = ImagePicker();
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,12 +47,7 @@ class PhotoPickerState extends State<PhotoPicker> {
         child: Ink(
           decoration: BoxDecoration(
             color: Colors.blue,
-            image: imageFile != null
-                ? DecorationImage(
-                    image: FileImage(imageFile),
-                    fit: BoxFit.fitWidth,
-                  )
-                : null,
+            image: _buildPhoto(),
             borderRadius: BorderRadius.all(
               Radius.circular(16),
             ),
@@ -50,6 +56,38 @@ class PhotoPickerState extends State<PhotoPicker> {
         ),
       ),
     );
+  }
+
+  DecorationImage _buildPhoto() {
+    if (widget.filmImage != null) {
+      if (imageFile != null) {
+        return DecorationImage(
+          image: FileImage(imageFile),
+          fit: BoxFit.fitWidth,
+        );
+      }
+      return DecorationImage(
+        image: _buildInitialPhoto(),
+        fit: BoxFit.fitWidth,
+      );
+    }
+    if (imageFile != null) {
+      return DecorationImage(
+        image: FileImage(imageFile),
+        fit: BoxFit.fitWidth,
+      );
+    }
+
+    return null;
+  }
+
+  ImageProvider _buildInitialPhoto() {
+    bool validURL = Uri.parse(widget.filmImage).isAbsolute;
+    if (validURL) {
+      return NetworkImage(widget.filmImage);
+    }
+
+    return FileImage(File(widget.filmImage));
   }
 
   Widget _buildImagePick() {

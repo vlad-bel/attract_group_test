@@ -39,11 +39,13 @@ class _ListScreenState extends State<ListScreen> {
         },
         listener: (BuildContext context, state) async {
           if(state is DetailsRouteState){
-            Navigator.of(context).push(filmDetailsRoute(state.filmId));
+           await  Navigator.of(context).push(filmDetailsRoute(state.filmId));
+           context.bloc<ListScreenBloc>().add(RefreshEvent());
           }
 
           if(state is NewFilmRouteState){
-            Navigator.of(context).push(newFilmRoute());
+            await Navigator.of(context).push(newFilmRoute());
+            context.bloc<ListScreenBloc>().add(RefreshEvent());
           }
         },
       ),
@@ -62,7 +64,6 @@ class _ListScreenState extends State<ListScreen> {
             if (state is LoadingState) _buildLoadingState(),
             if (state is ErrorState) _buildErrorState(),
             if (state is SuccesState) _buildSuccesState(state, context),
-            if (state is DetailsRouteState) _buildSuccesState(state, context),
           ],
         ),
       ),
@@ -142,4 +143,5 @@ class _ListScreenState extends State<ListScreen> {
       },
     );
   }
+
 }

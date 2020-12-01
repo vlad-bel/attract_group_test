@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:attract_group_test/data/model/film.dart';
 import 'package:attract_group_test/ui/screen/details_screen/details_screen_pages.dart';
 import 'package:attract_group_test/ui/screen/edit_screen/edit_screen.dart';
 import 'package:flutter/cupertino.dart';
@@ -19,4 +20,12 @@ PageRoute filmDetailsRoute(int filmIndex) {
 
 PageRoute newFilmRoute() {
   return _adaptiveRoute(EditScreen());
+}
+
+PageRoute editFilmRoute(Film film) {
+  return _adaptiveRoute(
+    EditScreen(
+      film: film,
+    ),
+  );
 }

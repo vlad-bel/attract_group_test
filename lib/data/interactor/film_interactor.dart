@@ -20,9 +20,7 @@ class FilmInteractor {
   }
 
   void editFilm(int filmId, Film newFilm) {
-    final newList = <Film>[];
-    newList.add(newFilm);
-    
-    cachedFilms.replaceRange(filmId, filmId + 1, newList);
+    cachedFilms[cachedFilms.indexWhere((element) => element.id == filmId)] =
+        newFilm;
   }
 }

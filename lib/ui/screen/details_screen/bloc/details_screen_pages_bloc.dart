@@ -3,11 +3,11 @@ import 'package:attract_group_test/ui/screen/details_screen/bloc/details_screen_
 import 'package:attract_group_test/ui/screen/details_screen/bloc/details_screen_pages_state.dart';
 import 'package:bloc/bloc.dart';
 
-class DetailsScreenPagesCubit extends Cubit<DetailsScreenPagesState> {
+class DetailsScreenPagesBloc extends Cubit<DetailsScreenPagesState> {
   final int currentFilmIndex;
   final FilmInteractor filmInteractor;
 
-  DetailsScreenPagesCubit(
+  DetailsScreenPagesBloc(
     this.currentFilmIndex,
     this.filmInteractor,
   ) : super(DetailsScreenInitPagesState(
@@ -15,7 +15,18 @@ class DetailsScreenPagesCubit extends Cubit<DetailsScreenPagesState> {
           filmInteractor.cachedFilms,
         ));
 
-  void back(){
+  void back() {
     emit(DetailsScreenBackPagesState());
+  }
+
+  void openEditScreen() {
+    emit(DetailsEditFilmState(filmInteractor.cachedFilms[currentFilmIndex]));
+  }
+
+  void refresh() {
+    emit(DetailsScreenInitPagesState(
+      currentFilmIndex,
+      filmInteractor.cachedFilms,
+    ));
   }
 }

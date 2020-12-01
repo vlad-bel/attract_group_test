@@ -13,3 +13,10 @@ class DetailsScreenInitPagesState extends DetailsScreenPagesState {
 }
 
 class DetailsScreenBackPagesState extends DetailsScreenPagesState {}
+
+class DetailsEditFilmState extends DetailsScreenPagesState{
+  final Film film;
+
+  DetailsEditFilmState(this.film);
+
+}

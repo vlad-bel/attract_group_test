@@ -1,17 +1,24 @@
 import 'dart:io';
 
 import 'package:attract_group_test/data/model/film.dart';
-import 'package:attract_group_test/data/repository/film_repository.dart';
+import 'package:attract_group_test/main.dart';
+import 'package:attract_group_test/ui/screen/edit_screen/bloc/edit_screen_bloc.dart';
+import 'package:attract_group_test/ui/screen/edit_screen/bloc/edit_screen_event.dart';
+import 'package:attract_group_test/ui/screen/edit_screen/bloc/edit_screen_state.dart';
+import 'package:attract_group_test/ui/screen/edit_screen/confirm_button/confirm_button.dart';
 import 'package:attract_group_test/ui/screen/edit_screen/photo_picker/photo_picker.dart';
 import 'package:attract_group_test/ui/screen/edit_screen/textfield/pickers.dart';
 import 'package:attract_group_test/ui/screen/edit_screen/textfield/textfield.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class EditScreen extends StatefulWidget {
   final Film film;
 
-  const EditScreen({this.film});
+  const EditScreen({
+    this.film,
+  });
 
   @override
   State<StatefulWidget> createState() {
@@ -24,97 +31,78 @@ class _EditScreenState extends State<EditScreen> {
   TextEditingController dateController;
   TextEditingController descriptionController;
 
-  File photo;
+  // File photo;
 
   final nameFocusNode = FocusNode();
   final dateFocusNode = FocusNode();
   final descriptionFocusNode = FocusNode();
 
-  var formsIsValid = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return _buildAndroidUi();
-  }
-
   @override
   void initState() {
+    // TODO: implement initState
     super.initState();
 
     nameController = TextEditingController(text: widget.film?.name ?? '');
     dateController =
-        TextEditingController(text: widget.film?.time.toString() ?? '');
+        TextEditingController(text: widget.film?.time?.toString() ?? '');
     descriptionController =
         TextEditingController(text: widget.film?.description ?? '');
-
-    ///add validator
-    nameController.addListener(() {
-      setState(() {
-        formsIsValid = _validateFields();
-      });
-    });
-
-    descriptionController.addListener(() {
-      setState(() {
-        formsIsValid = _validateFields();
-      });
-    });
-
-    dateController.addListener(() {
-      setState(() {
-        formsIsValid = _validateFields();
-      });
-    });
-  }
-
-  bool _validateFields() {
-    if (widget.film == null) {
-      if ((nameController.text == null || nameController.text.isEmpty) ||
-          (dateController.text == null || dateController.text.isEmpty) ||
-          (descriptionController.text == null ||
-              descriptionController.text.isEmpty) ||
-          photo == null) {
-        return false;
-      } else {
-        return true;
-      }
-    } else {
-      if (nameController.text != widget.film.name ||
-          dateController.text != widget.film.time.toString() ||
-          descriptionController.text != widget.film.description) {
-        return true;
-      } else {
-        return false;
-      }
-    }
   }
 
   @override
-  void dispose() {
-    super.dispose();
-    nameController.dispose();
-    dateController.dispose();
-    descriptionController.dispose();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (BuildContext context) {
+        return EditScreenBloc(
+          widget.film,
+          MyApp.filmInteractor,
+        );
+      },
+      child: BlocConsumer<EditScreenBloc, EditScreenState>(
+        listener: (BuildContext context, state) {
+          var bloc = context.bloc<EditScreenBloc>();
 
-    nameFocusNode.dispose();
-    dateFocusNode.dispose();
-    descriptionFocusNode.dispose();
-  }
+          // if (state is TypeNameState) {
+          //   nameController.text = state.text;
+          // }
+          //
+          // if (state is TypeDateState) {
+          //   dateController.text = state.dateText;
+          // }
+          // if (state is TypeDescriptionState) {
+          //   descriptionController.text = state.text;
+          // }
 
-  Widget _buildAndroidUi() {
-    return Scaffold(
-      appBar: _buildAppbar(),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              _buildPhotoPicker(),
-              _buildTextFields(),
-              _buildConfirmButton(),
-            ],
-          ),
-        ),
+          if (state is NavigateBackState) {
+            Navigator.of(context).pop();
+          }
+        },
+        builder: (BuildContext context, EditScreenState state) {
+          return Scaffold(
+            appBar: _buildAppbar(),
+            body: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    _buildPhotoPicker(
+                      context,
+                      state,
+                    ),
+                    _buildTextFields(
+                      context,
+                      state,
+                    ),
+                    _buildConfirmButton(
+                      context,
+                      state,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -137,23 +125,24 @@ class _EditScreenState extends State<EditScreen> {
           Icons.arrow_back_ios,
           color: Colors.black,
         ),
-        onPressed: () {},
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
       ),
     );
   }
 
-  Widget _buildPhotoPicker() {
+  Widget _buildPhotoPicker(BuildContext context, EditScreenState state) {
     return PhotoPicker(
+      filmImage: widget.film != null ? widget.film.image : null,
       onImagePick: (File file) {
-        setState(() {
-          photo = file;
-          formsIsValid = _validateFields();
-        });
+        context.bloc<EditScreenBloc>().add(ImagePickEvent(file));
       },
     );
   }
 
-  Widget _buildTextFields() {
+  Widget _buildTextFields(BuildContext context, EditScreenState state) {
+    final bloc = context.bloc<EditScreenBloc>();
     return Column(
       children: [
         SizedBox(
@@ -163,13 +152,16 @@ class _EditScreenState extends State<EditScreen> {
           controller: nameController,
           focusNode: nameFocusNode,
           label: "Film name",
+          onChange: (text) {
+            bloc.add(TypeNameEvent(text));
+          },
           onSubmitted: (text) async {
             FocusScope.of(context).requestFocus(dateFocusNode);
             var selectedDateTime = Platform.isAndroid
                 ? await showAndroidPickers(context)
-                : showIosPickeres(context);
+                : await showIosPickeres(context);
             if (selectedDateTime != null) {
-              dateController.text = selectedDateTime.toString();
+              bloc.add(PickDateEvent(selectedDateTime.toString()));
             }
             FocusScope.of(context).requestFocus(descriptionFocusNode);
           },
@@ -183,6 +175,7 @@ class _EditScreenState extends State<EditScreen> {
           label: "film date",
           mode: Mode.date,
           onDatePick: (date) {
+            bloc.add(PickDateEvent(dateController.text));
             FocusScope.of(context).requestFocus(descriptionFocusNode);
           },
         ),
@@ -197,6 +190,9 @@ class _EditScreenState extends State<EditScreen> {
           onSubmitted: (text) {
             FocusScope.of(context).requestFocus(null);
           },
+          onChange: (text) {
+            bloc.add(TypeDescriptionEvent(text));
+          },
         ),
         SizedBox(
           height: 16,
@@ -205,49 +201,24 @@ class _EditScreenState extends State<EditScreen> {
     );
   }
 
-  Widget _buildConfirmButton() {
-    if (Platform.isAndroid) {
-      return Container(
-        height: 48,
-        width: double.infinity,
-        child: RaisedButton(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(8),
-            ),
-          ),
-          onPressed: formsIsValid
-              ? () {
-                  if (widget.film == null) {
-                    print("create");
-                    return;
-                  }
-                  print('update');
-                }
-              : null,
-          child: Text(
-            widget.film == null ? 'Create' : "Update",
-          ),
-        ),
-      );
-    }
-
-    return Container(
-      width: double.infinity,
-      child: CupertinoButton.filled(
-        onPressed: formsIsValid
-            ? () {
-                if (widget.film == null) {
-                  print("create");
-                  return;
-                }
-                print('update');
+  Widget _buildConfirmButton(BuildContext context, EditScreenState state) {
+    final bloc = context.bloc<EditScreenBloc>();
+    return ConfirmButton(
+      label: state.type == ScreenType.create ? "create" : "edit",
+      onPressed: state is ValidForms
+          ? () {
+              if (state.type == ScreenType.create) {
+                bloc.add(AddNewFilmEvent());
+                return;
               }
-            : null,
-        child: Text(
-          widget.film == null ? 'Create' : "Update",
-        ),
-      ),
+              return bloc.add(ChangeExistFilmEvent(
+                image: state.image ?? File(widget.film.image) ,
+                name: nameController.text,
+                date: dateController.text,
+                description: descriptionController.text,
+              ));
+            }
+          : null,
     );
   }
 }
