@@ -1,9 +1,13 @@
 import 'dart:io';
 
+import 'package:attract_group_test/main.dart';
+import 'package:attract_group_test/ui/screen/details_screen/bloc/details_screen_pages_bloc.dart';
+import 'package:attract_group_test/ui/screen/details_screen/bloc/details_screen_pages_state.dart';
 import 'package:attract_group_test/ui/screen/details_screen/details_screen.dart';
 import 'package:attract_group_test/ui/util/mocks.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DetailsScreenPages extends StatefulWidget {
   final int filmIndex;
@@ -19,20 +23,38 @@ class DetailsScreenPages extends StatefulWidget {
 class _DetailsScreenPagesState extends State<DetailsScreenPages> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          PageView.builder(
-            itemBuilder: (context, index) {
-              return DetailsScreen(mockFilms[index]);
-            },
-            controller: PageController(
-              initialPage: widget.filmIndex,
+    return BlocProvider(
+      create: (BuildContext context) {
+        return DetailsScreenPagesCubit(
+          widget.filmIndex,
+          MyApp.filmInteractor,
+        );
+      },
+      child: Scaffold(
+        body: Stack(
+          children: [
+            BlocConsumer<DetailsScreenPagesCubit, DetailsScreenPagesState>(
+              listener: (context, state) {
+
+              },
+              builder: (context, state) {
+                if (state is DetailsScreenInitPagesState) {
+                  return PageView.builder(
+                    itemBuilder: (context, index) {
+                      return DetailsScreen(state.filmsList[index]);
+                    },
+                    controller: PageController(
+                      initialPage: state.currentFilmIndex,
+                    ),
+                    itemCount: state.filmsList.length,
+                  );
+                }
+                return Container();
+              },
             ),
-            itemCount: mockFilms.length,
-          ),
-          _buildAppbar(),
-        ],
+            _buildAppbar(),
+          ],
+        ),
       ),
     );
   }
@@ -42,12 +64,23 @@ class _DetailsScreenPagesState extends State<DetailsScreenPages> {
       padding: const EdgeInsets.only(top: 32.0),
       child: Row(
         children: [
-          IconButton(
-            icon: Icon(
-              Platform.isAndroid ? Icons.arrow_back : Icons.arrow_back_ios,
-              color: Colors.white,
-            ),
-            onPressed: () {},
+          BlocConsumer<DetailsScreenPagesCubit, DetailsScreenPagesState>(
+            listener: (context, state) {
+              if (state is DetailsScreenBackPagesState) {
+                Navigator.of(context).pop();
+              }
+            },
+            builder: (context, state) {
+              return IconButton(
+                icon: Icon(
+                  Platform.isAndroid ? Icons.arrow_back : Icons.arrow_back_ios,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  context.bloc<DetailsScreenPagesCubit>().back();
+                },
+              );
+            },
           ),
           Spacer(),
           Platform.isAndroid

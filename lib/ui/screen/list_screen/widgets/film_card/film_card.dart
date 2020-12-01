@@ -1,11 +1,20 @@
 import 'dart:io';
 
-import 'package:attract_group_test/ui/util/colors.dart';
+import 'package:attract_group_test/data/model/film.dart';
 import 'package:attract_group_test/ui/util/res.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class FilmCard extends StatelessWidget {
+  final Film film;
+  final Function() onTap;
+
+  const FilmCard({
+    Key key,
+    @required this.film,
+    @required this.onTap,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -13,8 +22,7 @@ class FilmCard extends StatelessWidget {
         horizontal: 8,
         vertical: 2,
       ),
-      child: _buildIosCard(),
-      // child: Platform.isAndroid ? _buildAndroidCard() : _buildIosCard(),
+      child: Platform.isAndroid ? _buildAndroidCard() : _buildIosCard(),
     );
   }
 
@@ -25,55 +33,58 @@ class FilmCard extends StatelessWidget {
           Radius.circular(8.0),
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ///build photo
-          ClipRRect(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(8.0),
-              topRight: Radius.circular(8.0),
-            ),
-            child: Container(
-              height: 200,
-              width: double.infinity,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ///build photo
+
+            ClipRRect(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(8.0),
+                topRight: Radius.circular(8.0),
+              ),
               child: FadeInImage.assetNetwork(
+                image: film.image,
                 placeholder: filmPlaceholderPath,
-                image:
-                    'https://i.insider.com/5b5247a87708e946971b98b3?8width=750&format=jpeg&auto=webp',
                 fit: BoxFit.fitWidth,
+                height: 200,
+                width: double.infinity,
               ),
             ),
-          ),
-          ///build body
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ///TODO стиль текста в теме
-                Text(
-                  "film_name",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
+
+            ///build body
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ///TODO стиль текста в теме
+                  Text(
+                    film.name,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
                   ),
-                ),
-                SizedBox(
-                  height: 8,
-                ),
-                ///TODO стиль текста в теме
-                Text(
-                  "01-march-2018 10:10",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w300,
-                    fontSize: 16,
+                  SizedBox(
+                    height: 8,
                   ),
-                ),
-              ],
+
+                  ///TODO стиль текста в теме
+                  Text(
+                    film.time.toString(),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w300,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -87,18 +98,19 @@ class FilmCard extends StatelessWidget {
             borderRadius: BorderRadius.all(
               Radius.circular(8),
             ),
+
             ///build photo
             child: Container(
               height: 200,
               width: double.infinity,
               child: FadeInImage.assetNetwork(
                 placeholder: filmPlaceholderPath,
-                image:
-                    'https://i.insider.com/5b5247a87708e946971b98b3?8width=750&format=jpeg&auto=webp',
+                image: film.image,
                 fit: BoxFit.fitWidth,
               ),
             ),
           ),
+
           ///build body
           Padding(
             padding: const EdgeInsets.all(16),
@@ -108,7 +120,7 @@ class FilmCard extends StatelessWidget {
               children: [
                 ///TODO стиль текста в теме
                 Text(
-                  "film_name",
+                  film.name,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 24,
@@ -118,9 +130,10 @@ class FilmCard extends StatelessWidget {
                 SizedBox(
                   height: 8,
                 ),
+
                 ///TODO стиль текста в теме
                 Text(
-                  "01-march-2018 10:10",
+                  film.time.toString(),
                   style: TextStyle(
                     fontWeight: FontWeight.w300,
                     fontSize: 16,

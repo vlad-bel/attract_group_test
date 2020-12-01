@@ -8,33 +8,42 @@ import 'package:flutter/material.dart';
 class ListScreenBloc extends Bloc<ListScreenEvent, ListScreenState> {
   final FilmInteractor filmInteractor;
 
-  // final GlobalKey<NavigatorState> navigatorKey;
-
   ListScreenBloc(
     this.filmInteractor,
-    // this.navigatorKey,
   ) : super(ListScreenState()) {
-    add(ListScreenInitEvent());
+    add(InitEvent());
   }
 
   @override
   Stream<ListScreenState> mapEventToState(event) async* {
-    if (event is ListScreenInitEvent) {
-      yield ListScreenLoading();
+    if (event is InitEvent) {
+      yield LoadingState();
       yield await loadFilmList();
+    }
+
+    if (event is DetailsRouteEvent) {
+      yield DetailsRouteState(
+        event.filmId,
+        filmInteractor.cachedFilms,
+      );
+    }
+
+    if (event is NewFilmRouteEvent) {
+      yield NewFilmRouteState(filmInteractor.cachedFilms);
+    }
+
+    if (event is RemoveFilmEvent) {
+      filmInteractor.cachedFilms.removeAt(event.index);
+      yield RemoveFilmState(filmInteractor.cachedFilms);
     }
   }
 
   Future<ListScreenState> loadFilmList() async {
     try {
       filmInteractor.cachedFilms = await filmInteractor.getFilms();
-      return ListScreenSucces(filmInteractor.cachedFilms);
+      return SuccesState(filmInteractor.cachedFilms);
     } catch (e) {
-      return ListScreenFail(exception: e);
+      return ErrorState(exception: e);
     }
-  }
-
-  void openFilmDetails() {
-    // navigatorKey.currentState.push(filmDetailsRoute(0));
   }
 }

@@ -1,4 +1,3 @@
-
 import 'package:attract_group_test/data/interactor/film_interactor.dart';
 import 'package:attract_group_test/data/repository/film_repository.dart';
 import 'package:attract_group_test/ui/screen/details_screen/details_screen.dart';
@@ -17,6 +16,12 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+  static FilmInteractor filmInteractor = FilmInteractor(
+    repository: FilmRepository(
+      client: http.Client(),
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -24,18 +29,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: BlocProvider(
-        create: (BuildContext context) {
-          return ListScreenBloc(
-            FilmInteractor(
-              repository: FilmRepository(
-                client: http.Client(),
-              ),
-            ),
-          );
-        },
-        child: ListScreen(),
-      ),
+      home: ListScreen(),
     );
   }
 }
