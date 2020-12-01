@@ -6,7 +6,7 @@ class ListScreenState {}
 class LoadingState extends ListScreenState {}
 
 class ErrorState extends ListScreenState {
-  final Exception exception;
+  final StateError exception;
 
   ErrorState({@required this.exception});
 }

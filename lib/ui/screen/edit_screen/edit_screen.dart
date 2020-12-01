@@ -9,6 +9,8 @@ import 'package:attract_group_test/ui/screen/edit_screen/confirm_button/confirm_
 import 'package:attract_group_test/ui/screen/edit_screen/photo_picker/photo_picker.dart';
 import 'package:attract_group_test/ui/screen/edit_screen/textfield/pickers.dart';
 import 'package:attract_group_test/ui/screen/edit_screen/textfield/textfield.dart';
+import 'package:attract_group_test/ui/util/strings.dart';
+import 'package:attract_group_test/ui/util/time_formatter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -39,14 +41,25 @@ class _EditScreenState extends State<EditScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
     nameController = TextEditingController(text: widget.film?.name ?? '');
     dateController =
-        TextEditingController(text: widget.film?.time?.toString() ?? '');
+        TextEditingController(text: widget.film != null ? getStringFromDateTime(widget.film?.time) :  '');
     descriptionController =
         TextEditingController(text: widget.film?.description ?? '');
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    nameController.dispose();
+    dateController.dispose();
+    descriptionController.dispose();
+
+    nameFocusNode.dispose();
+    dateFocusNode.dispose();
+    descriptionFocusNode.dispose();
   }
 
   @override
@@ -60,21 +73,12 @@ class _EditScreenState extends State<EditScreen> {
       },
       child: BlocConsumer<EditScreenBloc, EditScreenState>(
         listener: (BuildContext context, state) {
-          var bloc = context.bloc<EditScreenBloc>();
-
-          // if (state is TypeNameState) {
-          //   nameController.text = state.text;
-          // }
-          //
-          // if (state is TypeDateState) {
-          //   dateController.text = state.dateText;
-          // }
-          // if (state is TypeDescriptionState) {
-          //   descriptionController.text = state.text;
-          // }
-
           if (state is NavigateBackState) {
             Navigator.of(context).pop();
+          }
+
+          if(state is TypeDateState){
+            dateController.text = state.dateText;
           }
         },
         builder: (BuildContext context, EditScreenState state) {
@@ -110,16 +114,18 @@ class _EditScreenState extends State<EditScreen> {
   Widget _buildAppbar() {
     if (Platform.isAndroid) {
       return AppBar(
-        title: Text(widget.film != null ? "Edit film" : "Create new film"),
+        title: Text(widget.film != null ? editFilmTitle : createFilmTitle),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
         ),
       );
     }
 
     return CupertinoNavigationBar(
-      middle: Text(widget.film != null ? "Edit film" : "Create new film"),
+      middle: Text(widget.film != null ? editFilmTitle : createFilmTitle),
       leading: CupertinoButton(
         child: Icon(
           Icons.arrow_back_ios,
@@ -151,7 +157,7 @@ class _EditScreenState extends State<EditScreen> {
         AdaptiveTextField(
           controller: nameController,
           focusNode: nameFocusNode,
-          label: "Film name",
+          label: filmNameLabel,
           onChange: (text) {
             bloc.add(TypeNameEvent(text));
           },
@@ -161,7 +167,7 @@ class _EditScreenState extends State<EditScreen> {
                 ? await showAndroidPickers(context)
                 : await showIosPickeres(context);
             if (selectedDateTime != null) {
-              bloc.add(PickDateEvent(selectedDateTime.toString()));
+              bloc.add(PickDateEvent(getStringFromDateTime(selectedDateTime)));
             }
             FocusScope.of(context).requestFocus(descriptionFocusNode);
           },
@@ -172,7 +178,7 @@ class _EditScreenState extends State<EditScreen> {
         AdaptiveTextField(
           controller: dateController,
           focusNode: dateFocusNode,
-          label: "film date",
+          label: filmDateLabel,
           mode: Mode.date,
           onDatePick: (date) {
             bloc.add(PickDateEvent(dateController.text));
@@ -185,7 +191,7 @@ class _EditScreenState extends State<EditScreen> {
         AdaptiveTextField(
           controller: descriptionController,
           focusNode: descriptionFocusNode,
-          label: "film description",
+          label: filmDescriptionLabel,
           inputAction: TextInputAction.done,
           onSubmitted: (text) {
             FocusScope.of(context).requestFocus(null);
@@ -204,15 +210,16 @@ class _EditScreenState extends State<EditScreen> {
   Widget _buildConfirmButton(BuildContext context, EditScreenState state) {
     final bloc = context.bloc<EditScreenBloc>();
     return ConfirmButton(
-      label: state.type == ScreenType.create ? "create" : "edit",
+      label: state.type == ScreenType.create ? editFilmTitle : createFilmTitle,
       onPressed: state is ValidForms
           ? () {
               if (state.type == ScreenType.create) {
                 bloc.add(AddNewFilmEvent());
                 return;
               }
+
               return bloc.add(ChangeExistFilmEvent(
-                image: state.image ?? File(widget.film.image) ,
+                image: state.image ?? File(widget.film.image),
                 name: nameController.text,
                 date: dateController.text,
                 description: descriptionController.text,

@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:attract_group_test/ui/util/res.dart';
+import 'package:attract_group_test/ui/util/strings.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -102,7 +102,7 @@ class PhotoPickerState extends State<PhotoPicker> {
 
         ///TODO настроить стиль
         Text(
-          imageFile != null ? "change image" : 'add image',
+          photoPickerTitle,
           style: TextStyle(
             color: Colors.white,
             fontSize: 14,
@@ -115,21 +115,21 @@ class PhotoPickerState extends State<PhotoPicker> {
   void _showImagePickDialog() async {
     Widget cameraButton = Platform.isAndroid
         ? FlatButton(
-            child: Text("Camera"),
+            child: Text(cameraPickTitle),
             onPressed: () => getImage(ImageSource.camera),
           )
         : CupertinoButton(
-            child: Text("Camera"),
+            child: Text(cameraPickTitle),
             onPressed: () => getImage(ImageSource.camera),
           );
 
     Widget galleryButton = Platform.isAndroid
         ? FlatButton(
-            child: Text("Gallery"),
+            child: Text(galleryPickTitle),
             onPressed: () => getImage(ImageSource.gallery),
           )
         : CupertinoButton(
-            child: Text("Gallery"),
+            child: Text(galleryPickTitle),
             onPressed: () => getImage(ImageSource.gallery),
           );
 
@@ -138,16 +138,16 @@ class PhotoPickerState extends State<PhotoPicker> {
       context: context,
       child: Platform.isAndroid
           ? AlertDialog(
-              title: Text("Image picker"),
-              content: Text(
-                  "Selecting a photo from the camera or from the gallery?"),
+              title: Text(alertDialogTitle),
+              content: Text(alertDialogContent),
               actions: [
                 cameraButton,
                 galleryButton,
               ],
             )
           : CupertinoAlertDialog(
-              title: Text("Image picker"),
+              title: Text(alertDialogTitle),
+              content: Text(alertDialogContent),
               actions: [
                 cameraButton,
                 galleryButton,
@@ -162,8 +162,6 @@ class PhotoPickerState extends State<PhotoPicker> {
     setState(() {
       if (pickedFile != null) {
         imageFile = File(pickedFile.path);
-      } else {
-        print('No image selected.');
       }
     });
 

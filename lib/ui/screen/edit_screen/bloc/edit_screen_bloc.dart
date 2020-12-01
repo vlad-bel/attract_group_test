@@ -5,6 +5,7 @@ import 'package:attract_group_test/data/interactor/film_interactor.dart';
 import 'package:attract_group_test/data/model/film.dart';
 import 'package:attract_group_test/ui/screen/edit_screen/bloc/edit_screen_event.dart';
 import 'package:attract_group_test/ui/screen/edit_screen/bloc/edit_screen_state.dart';
+import 'package:attract_group_test/ui/util/time_formatter.dart';
 import 'package:bloc/bloc.dart';
 
 class EditScreenBloc extends Bloc<EditScreenEvent, EditScreenState> {
@@ -48,10 +49,10 @@ class EditScreenBloc extends Bloc<EditScreenEvent, EditScreenState> {
       yield _addNewFilm();
     }
     if (event is ChangeExistFilmEvent) {
-      print("изображение ${event.image}");
       yield _editExistFilm(
         event.name,
         event.image,
+        event.date,
         event.description,
         event.date,
       );
@@ -109,18 +110,17 @@ class EditScreenBloc extends Bloc<EditScreenEvent, EditScreenState> {
         name: name,
         image: image.path,
         description: description,
-        time: DateTime.parse(date),
+        time: getDateTimeFromString(date),
       ),
     );
 
-    print(
-        "новый фильм создан ${interactor.cachedFilms[interactor.cachedFilms.length - 1]}");
     return NavigateBackState(state.type);
   }
 
   NavigateBackState _editExistFilm(
     String name,
     File image,
+    String date,
     String description,
     String time,
   ) {
@@ -131,7 +131,7 @@ class EditScreenBloc extends Bloc<EditScreenEvent, EditScreenState> {
         name: name,
         image: image.path,
         description: description,
-        time: DateTime.now(),
+        time: getDateTimeFromString(date),
       ),
     );
 

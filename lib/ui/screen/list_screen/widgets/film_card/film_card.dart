@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:attract_group_test/data/model/film.dart';
 import 'package:attract_group_test/ui/util/res.dart';
+import 'package:attract_group_test/ui/util/time_formatter.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -66,7 +68,7 @@ class FilmCard extends StatelessWidget {
 
                   ///TODO стиль текста в теме
                   Text(
-                    film.time.toString(),
+                    getStringFromDateTime(film.time),
                     style: TextStyle(
                       fontWeight: FontWeight.w300,
                       fontSize: 16,
@@ -84,9 +86,16 @@ class FilmCard extends StatelessWidget {
   Widget _buildPhoto() {
     bool validURL = Uri.parse(film.image).isAbsolute;
     if (validURL) {
-      return FadeInImage.assetNetwork(
-        image: film.image,
-        placeholder: filmPlaceholderPath,
+      return CachedNetworkImage(
+        imageUrl: film.image,
+        placeholder: (context, url) {
+          return Image.asset(
+            filmPlaceholderPath,
+            fit: BoxFit.fitWidth,
+            height: 200,
+            width: double.infinity,
+          );
+        },
         fit: BoxFit.fitWidth,
         height: 200,
         width: double.infinity,
@@ -105,50 +114,53 @@ class FilmCard extends StatelessWidget {
   }
 
   Widget _buildIosCard() {
-    return Container(
-      height: 200,
-      child: Stack(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.all(
-              Radius.circular(8),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 200,
+        child: Stack(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.all(
+                Radius.circular(8),
+              ),
+              child: _buildPhoto(),
             ),
-            child: _buildPhoto(),
-          ),
 
-          ///build body
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                ///TODO стиль текста в теме
-                Text(
-                  film.name,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                    color: Colors.white,
+            ///build body
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  ///TODO стиль текста в теме
+                  Text(
+                    film.name,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24,
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-                SizedBox(
-                  height: 8,
-                ),
+                  SizedBox(
+                    height: 8,
+                  ),
 
-                ///TODO стиль текста в теме
-                Text(
-                  film.time.toString(),
-                  style: TextStyle(
-                    fontWeight: FontWeight.w300,
-                    fontSize: 16,
-                    color: Colors.white,
+                  ///TODO стиль текста в теме
+                  Text(
+                    getStringFromDateTime(film.time),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w300,
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
