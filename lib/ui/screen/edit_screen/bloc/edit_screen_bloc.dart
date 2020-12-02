@@ -11,6 +11,7 @@ import 'package:bloc/bloc.dart';
 class EditScreenBloc extends Bloc<EditScreenEvent, EditScreenState> {
   final Film film;
   final FilmInteractor interactor;
+  final int filmIndex;
 
   File image;
   String name;
@@ -20,6 +21,7 @@ class EditScreenBloc extends Bloc<EditScreenEvent, EditScreenState> {
   EditScreenBloc(
     this.film,
     this.interactor,
+    this.filmIndex,
   ) : super(EditScreenState(
             film != null ? ScreenType.edit : ScreenType.create));
 
@@ -125,7 +127,7 @@ class EditScreenBloc extends Bloc<EditScreenEvent, EditScreenState> {
     String time,
   ) {
     interactor.editFilm(
-      film.id,
+      filmIndex,
       Film(
         id: film.id,
         name: name,

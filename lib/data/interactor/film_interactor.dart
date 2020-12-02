@@ -19,8 +19,8 @@ class FilmInteractor {
     cachedFilms.add(film);
   }
 
-  void editFilm(int filmId, Film newFilm) {
-    cachedFilms[cachedFilms.indexWhere((element) => element.id == filmId)] =
+  void editFilm(int filmIndex, Film newFilm) {
+    cachedFilms[filmIndex] =
         newFilm;
   }
 }

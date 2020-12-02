@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:attract_group_test/data/interactor/film_interactor.dart';
 import 'package:attract_group_test/data/model/film.dart';
 import 'package:attract_group_test/main.dart';
 import 'package:attract_group_test/ui/screen/edit_screen/bloc/edit_screen_bloc.dart';
@@ -17,9 +18,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class EditScreen extends StatefulWidget {
   final Film film;
+  final int filmIndex;
 
   const EditScreen({
     this.film,
+    this.filmIndex,
   });
 
   @override
@@ -68,7 +71,8 @@ class _EditScreenState extends State<EditScreen> {
       create: (BuildContext context) {
         return EditScreenBloc(
           widget.film,
-          MyApp.filmInteractor,
+          getIt<FilmInteractor>(),
+          widget.filmIndex,
         );
       },
       child: BlocConsumer<EditScreenBloc, EditScreenState>(

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:attract_group_test/data/interactor/film_interactor.dart';
 import 'package:attract_group_test/main.dart';
 import 'package:attract_group_test/ui/screen/list_screen/bloc/list_screen_bloc.dart';
 import 'package:attract_group_test/ui/screen/list_screen/bloc/list_screen_event.dart';
@@ -27,7 +28,7 @@ class _ListScreenState extends State<ListScreen> {
     return BlocProvider(
       create: (BuildContext context) {
         return ListScreenBloc(
-          MyApp.filmInteractor,
+          getIt<FilmInteractor>(),
         );
       },
       child: BlocConsumer<ListScreenBloc, ListScreenState>(
