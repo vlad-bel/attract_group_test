@@ -22,10 +22,11 @@ PageRoute newFilmRoute() {
   return _adaptiveRoute(EditScreen());
 }
 
-PageRoute editFilmRoute(Film film) {
+PageRoute editFilmRoute(Film film, int filmIndex) {
   return _adaptiveRoute(
     EditScreen(
       film: film,
+      filmIndex: filmIndex,
     ),
   );
 }

@@ -1,3 +1,4 @@
+import 'package:attract_group_test/ui/util/strings.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -39,7 +40,7 @@ Future<DateTime> showIosPickeres(BuildContext context) async {
         Align(
           alignment: Alignment.centerRight,
           child: CupertinoButton(
-            child: Text('pick'),
+            child: Text(pickerButtonTitle),
             onPressed: () {
               if (date == null) {
                 date = DateTime.now();
@@ -49,7 +50,7 @@ Future<DateTime> showIosPickeres(BuildContext context) async {
           ),
         ),
         Container(
-          height: 200,
+          height: 195,
           child: CupertinoDatePicker(
             initialDateTime: DateTime.now(),
             onDateTimeChanged: (DateTime newDate) {
@@ -78,7 +79,7 @@ Future<DateTime> showIosPickeres(BuildContext context) async {
         Align(
           alignment: Alignment.centerRight,
           child: CupertinoButton(
-            child: Text('pick'),
+            child: Text(pickerButtonTitle),
             onPressed: () {
               if (time == null) {
                 time = DateTime.now();
@@ -88,7 +89,7 @@ Future<DateTime> showIosPickeres(BuildContext context) async {
           ),
         ),
         Container(
-          height: 200,
+          height: 195,
           child: CupertinoDatePicker(
             initialDateTime: DateTime.now(),
             onDateTimeChanged: (DateTime newTime) {

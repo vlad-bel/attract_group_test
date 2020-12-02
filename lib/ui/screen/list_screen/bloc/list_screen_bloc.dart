@@ -46,6 +46,7 @@ class ListScreenBloc extends Bloc<ListScreenEvent, ListScreenState> {
       filmInteractor.cachedFilms = await filmInteractor.getFilms();
       return SuccesState(filmInteractor.cachedFilms);
     } catch (e) {
+      print("ошибка $e");
       return ErrorState(exception: e);
     }
   }

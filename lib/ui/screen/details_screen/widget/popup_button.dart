@@ -20,12 +20,15 @@ class PopupButton extends StatelessWidget {
           return [
             ///TODO стиль текста в теме
             PopupMenuItem(
-              child: TextButton(
-                onPressed: onPressed,
-                child: Text('edit'),
-              ),
+              value: 'edit',
+              child: Text('edit'),
             ),
           ];
+        },
+        onSelected: (value){
+          if(value == 'edit'){
+            onPressed();
+          }
         },
       );
     }
@@ -39,7 +42,10 @@ class PopupButton extends StatelessWidget {
           actions: <Widget>[
             CupertinoActionSheetAction(
               child: Text('edit'),
-              onPressed: onPressed,
+              onPressed:(){
+                Navigator.pop(context);
+                onPressed();
+              } ,
             )
           ],
           cancelButton: CupertinoActionSheetAction(

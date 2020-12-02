@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:attract_group_test/data/interactor/film_interactor.dart';
 import 'package:attract_group_test/main.dart';
 import 'package:attract_group_test/ui/screen/list_screen/bloc/list_screen_bloc.dart';
 import 'package:attract_group_test/ui/screen/list_screen/bloc/list_screen_event.dart';
@@ -9,6 +10,7 @@ import 'package:attract_group_test/ui/screen/list_screen/widgets/film_list/film_
 import 'package:attract_group_test/ui/screen/list_screen/widgets/new_film_button/new_film_button.dart';
 import 'package:attract_group_test/ui/screen/list_screen/widgets/refresher/refresher.dart';
 import 'package:attract_group_test/ui/screen/routes/film_details_route.dart';
+import 'package:attract_group_test/ui/util/strings.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,29 +23,27 @@ class ListScreen extends StatefulWidget {
 }
 
 class _ListScreenState extends State<ListScreen> {
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (BuildContext context) {
         return ListScreenBloc(
-          MyApp.filmInteractor,
+          getIt<FilmInteractor>(),
         );
       },
       child: BlocConsumer<ListScreenBloc, ListScreenState>(
         builder: (BuildContext context, state) {
-          print("currentState $state");
           return Platform.isIOS
-              ? _buildIosUi(state)
+              ? _buildIosUi(state, context)
               : _buildAndroidUi(state, context);
         },
         listener: (BuildContext context, state) async {
-          if(state is DetailsRouteState){
-           await  Navigator.of(context).push(filmDetailsRoute(state.filmId));
-           context.bloc<ListScreenBloc>().add(RefreshEvent());
+          if (state is DetailsRouteState) {
+            await Navigator.of(context).push(filmDetailsRoute(state.filmId));
+            context.bloc<ListScreenBloc>().add(RefreshEvent());
           }
 
-          if(state is NewFilmRouteState){
+          if (state is NewFilmRouteState) {
             await Navigator.of(context).push(newFilmRoute());
             context.bloc<ListScreenBloc>().add(RefreshEvent());
           }
@@ -61,8 +61,8 @@ class _ListScreenState extends State<ListScreen> {
         child: CustomScrollView(
           slivers: [
             Appbar(),
-            if (state is LoadingState) _buildLoadingState(),
             if (state is ErrorState) _buildErrorState(),
+            if (state is LoadingState) _buildLoadingState(),
             if (state is SuccesState) _buildSuccesState(state, context),
           ],
         ),
@@ -75,32 +75,29 @@ class _ListScreenState extends State<ListScreen> {
     );
   }
 
-  Widget _buildIosUi(ListScreenState state) {
+  Widget _buildIosUi(ListScreenState state, BuildContext context) {
     return Scaffold(
-      body: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) {
-          return [
-            AppBar(),
-          ];
-        },
-        body: CustomScrollView(
-          physics: AlwaysScrollableScrollPhysics(
-            parent: BouncingScrollPhysics(),
-          ),
-          slivers: [
-            Refresher(
-              onRefresh: () {
-                ///TODO сделать обновление
-              },
-            ),
-            if (state is LoadingState) _buildLoadingState(),
-            if (state is ErrorState) _buildErrorState(),
-            if (state is SuccesState) _buildSuccesState(state, context),
-          ],
+      body: CustomScrollView(
+        physics: AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
         ),
+        slivers: [
+          Appbar(),
+          Refresher(
+            onRefresh: () {
+              context.bloc<ListScreenBloc>().add(InitEvent());
+              return Future.value();
+            },
+          ),
+          if (state is ErrorState) _buildErrorState(),
+          if (state is LoadingState) _buildLoadingState(),
+          if (state is SuccesState) _buildSuccesState(state, context),
+        ],
       ),
       floatingActionButton: NewFilmButton(
-        onPressed: () {},
+        onPressed: () {
+          context.bloc<ListScreenBloc>().add(NewFilmRouteEvent());
+        },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
@@ -125,7 +122,7 @@ class _ListScreenState extends State<ListScreen> {
               Icons.error_outline,
               color: Colors.red,
             ),
-            Text("error! try refresh page"),
+            Text(errorTitle),
           ],
         ),
       ),
@@ -143,5 +140,4 @@ class _ListScreenState extends State<ListScreen> {
       },
     );
   }
-
 }

@@ -1,8 +1,9 @@
 import 'dart:io';
 
 import 'package:attract_group_test/data/model/film.dart';
-import 'package:attract_group_test/ui/util/mocks.dart';
 import 'package:attract_group_test/ui/util/res.dart';
+import 'package:attract_group_test/ui/util/time_formatter.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -57,9 +58,14 @@ class _DetailsScreenState extends State<DetailsScreen> {
   Widget _buildPhoto() {
     bool validURL = Uri.parse(widget.film.image).isAbsolute;
     if (validURL) {
-      return FadeInImage.assetNetwork(
-        image: widget.film.image,
-        placeholder: filmPlaceholderPath,
+      return CachedNetworkImage(
+        imageUrl: widget.film.image,
+        placeholder: (context, url) {
+          return Image.asset(
+            filmPlaceholderPath,
+            fit: BoxFit.cover,
+          );
+        },
         fit: BoxFit.cover,
       );
     }
@@ -85,7 +91,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
               style: Theme.of(context).textTheme.headline4,
             ),
             Text(
-              widget.film.time.toUtc().toString(),
+              getStringFromDateTime(widget.film.time),
               style: Theme.of(context).textTheme.bodyText2,
             ),
             SizedBox(height: 8),

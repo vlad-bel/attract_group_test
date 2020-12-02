@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:attract_group_test/ui/screen/edit_screen/textfield/pickers.dart';
+import 'package:attract_group_test/ui/util/time_formatter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -71,7 +72,7 @@ class AdaptiveTextField extends StatelessWidget {
       onTap: () async {
         var selectedDateTime = await showAndroidPickers(context);
         if (selectedDateTime != null) {
-          controller.text = selectedDateTime.toString();
+          controller.text = getStringFromDateTime(selectedDateTime);
         }
         onDatePick(selectedDateTime);
       },
@@ -103,7 +104,7 @@ class AdaptiveTextField extends StatelessWidget {
       ),
       onTap: () async {
         var selectedDateTime = await showIosPickeres(context);
-        controller.text = selectedDateTime.toString();
+        controller.text = getStringFromDateTime(selectedDateTime);
         onDatePick(selectedDateTime);
       },
     );

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:attract_group_test/data/model/film.dart';
 import 'package:attract_group_test/ui/screen/list_screen/widgets/film_card/film_card.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 
 class FilmList extends StatelessWidget {
   final List<Film> filmList;
@@ -67,7 +68,6 @@ class FilmList extends StatelessWidget {
             onDismissed: (direction) {
               onDismissed(index);
             },
-            behavior: HitTestBehavior.deferToChild,
           );
         },
         childCount: filmList.length,

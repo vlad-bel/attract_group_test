@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:attract_group_test/ui/util/strings.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -8,14 +9,13 @@ class Appbar extends StatelessWidget {
   Widget build(BuildContext context) {
     if (Platform.isAndroid) {
       return SliverAppBar(
-        ///TODO стиль текста в теме
         title: Text(
-          "Film list",
+          listScreenTitle,
         ),
       );
     }
     return CupertinoSliverNavigationBar(
-      largeTitle: Text("List screen"),
+      largeTitle: Text(listScreenTitle),
     );
   }
 }
